@@ -98,7 +98,7 @@ def help():
     print("pwndurgotchi 1.0")
     print("")
     print(
-        "Usage: python pwndurgotchi [-p | --payload <path>] [-i | --interface <name>] [-c | --count <value>]"
+        "Usage: python pwndurgotchi.py [-p | --payload <path>] [-i | --interface <name>] [-c | --count <value>]"
     )
     print("[-r | random_identity <value>] [-s | --sleep <value>] [-l | --loop <value>]")
     print("")
