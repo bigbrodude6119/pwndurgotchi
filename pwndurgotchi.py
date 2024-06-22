@@ -95,9 +95,26 @@ def send_payload(
 
 
 def help():
-    print()
-    print("pwndurgotchi")
-    print()
+    print("pwndurgotchi 1.0")
+    print("")
+    print(
+        "Usage: python pwndurgotchi [-p | --payload <path>] [-i | --interface <name>] [-c | --count <value>]"
+    )
+    print("[-r | random_identity <value>] [-s | --sleep <value>] [-l | --loop <value>]")
+    print("")
+    print("-p --payload\t\tPath to the JSON payload to send")
+    print(
+        "-i --interface\t\tWireless interface used to send the packets (default wlan0)"
+    )
+    print("-c --count\t\tNumber of packets to send at a time (default 1)")
+    print("-r --random_identity\tTrue/False to use a random identity (default True)")
+    print("-s --sleep\t\tTime to sleep in between each loop (default 0)")
+    print("-l --loop\t\tAmount of times to loop (default 0)")
+    print("")
+    print("Requires a wireless interface in monitor mode and scapy")
+    print("")
+    print("Made by BigBroDude6119")
+
     sys.exit(0)
 
 
@@ -115,14 +132,14 @@ def main():
     try:
         opts, _ = getopt.getopt(
             sys.argv[1:],
-            "h:p:i:c:r:s:l:",
+            "hp:i:c:r:s:l:",
             [
                 "help",
                 "payload",
                 "interface",
                 "count",
                 "random_identity",
-                "sleep_time",
+                "sleep",
                 "loop",
             ],
         )
@@ -131,23 +148,20 @@ def main():
         help()
 
     for opt, arg in opts:
-        try:
-            if opt in ("-h", "--help"):
-                help()
-            elif opt in ("-p", "--payload"):
-                payload_file_path = arg
-            elif opt in ("-i", "--interface"):
-                iface = arg
-            elif opt in ("-c", "--count"):
-                count = int(arg)
-            elif opt in ("-r", "--random_identity"):
-                random_identity = arg != "False"
-            elif opt in ("-s", "--sleep_time"):
-                sleep_time = int(arg)
-            elif opt in ("-l", "--loop"):
-                loop_count = int(arg)
-        except:
-            print("Error parsing arguments")
+        if opt in ("-h", "--help"):
+            help()
+        elif opt in ("-p", "--payload"):
+            payload_file_path = arg
+        elif opt in ("-i", "--interface"):
+            iface = arg
+        elif opt in ("-c", "--count"):
+            count = int(arg)
+        elif opt in ("-r", "--random_identity"):
+            random_identity = arg == "True"
+        elif opt in ("-s", "--sleep"):
+            sleep_time = int(arg)
+        elif opt in ("-l", "--loop"):
+            loop_count = int(arg)
 
     if payload_file_path:
         send_payload(
