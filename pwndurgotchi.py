@@ -113,6 +113,13 @@ def help():
     print("")
     print("Requires a wireless interface in monitor mode and scapy")
     print("")
+    print("Payloads:")
+    print("calling_card.json\tSends a custom face & username to all nearby pwnagotchi")
+    print(
+        "kill_grid.json\t\tCrashes the pwngrid network on all nearby pwnagotchi. **Requires -r False to work**"
+    )
+    print("screen_freeze.json\tFreeze the screen of all nearby pwnagotchi")
+    print("")
     print("Made by BigBroDude6119")
 
     sys.exit(0)
