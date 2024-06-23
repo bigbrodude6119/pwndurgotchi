@@ -83,14 +83,14 @@ def send_payload(
     sleep_time=0,
     loop_count=0,
 ):
-    packet = create_pwn_packet(payload_file_path, use_random_identity)
-
     if loop_count > 0:
         for i in range(0, loop_count):
+            packet = create_pwn_packet(payload_file_path, use_random_identity)
             sendp(packet, loop=0, count=play_count, iface=iface, verbose=True)
             if sleep_time > 0:
                 sleep(sleep_time)
     else:
+        packet = create_pwn_packet(payload_file_path, use_random_identity)
         sendp(packet, loop=0, count=play_count, iface=iface, verbose=True)
 
 
