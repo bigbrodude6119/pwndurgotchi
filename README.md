@@ -8,7 +8,7 @@ Are you tired of pwnagotchi ruining your favorite [Las Vegas convention](https:/
 
 ### calling_card.json
 
-Send hello with a friendly message to all nearby pwnagotchi. You can change the face, name, and pwn counts. Does not crash any service on the pwnagotchi.
+Say hello with a friendly message to all nearby pwnagotchi. You can change the face, name, and pwn counts. Does not crash any service on the pwnagotchi.
 
 ex: `python pwndurgotchi.py -p ./payloads/calling_card.json -c 10 -v -l 100 -d 2`
 
